@@ -54,16 +54,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _totalCounter = 0;
+  int _leftCounter = 0;
+  int _rightCounter = 0;
 
-  void _incrementCounter() {
+  void _incrementLeft() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _totalCounter++;
+      _leftCounter++;
+    });
+  }
+
+  void _incrementRight() {
+    setState(() {
+      _totalCounter++;
+      _rightCounter++;
     });
   }
 
@@ -104,18 +109,46 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+            const Text('Total button presses'),
             Text(
-              '$_counter',
+              '$_totalCounter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 24),
+            const Text('Left button presses'),
+            Text(
+              '$_leftCounter',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            const Text('Right button presses'),
+            Text(
+              '$_rightCounter',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FloatingActionButton(
+              heroTag: 'incrementLeft',
+              onPressed: _incrementLeft,
+              tooltip: 'Left Increment',
+              child: const Icon(Icons.add),
+            ),
+            FloatingActionButton(
+              heroTag: 'incrementRight',
+              onPressed: _incrementRight,
+              tooltip: 'Right Increment',
+              child: const Icon(Icons.add),
+            ),
+          ],
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

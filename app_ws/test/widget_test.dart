@@ -1,30 +1,45 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:app_ws/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('displays login form on startup', (WidgetTester tester) async {
+    await tester.pumpWidget(const EMSNotesApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('EMS Notes Login'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Username'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('shows an error message for invalid credentials', (WidgetTester tester) async {
+    await tester.pumpWidget(const EMSNotesApp());
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'wrong');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'credentials');
+    await tester.tap(find.text('Login'));
+
     await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Invalid username or password'), findsOneWidget);
+  });
+
+  testWidgets('navigates to the home page after a successful login', (WidgetTester tester) async {
+    await tester.pumpWidget(const EMSNotesApp());
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'admin');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'password');
+    await tester.tap(find.text('Login'));
+
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(find.text('EMS Notes Login'), findsNothing);
+    expect(find.text('Patient Info'), findsOneWidget);
+    expect(find.text('Vitals'), findsOneWidget);
+    expect(find.text('Report'), findsOneWidget);
   });
 }

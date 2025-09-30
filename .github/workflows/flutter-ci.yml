@@ -21,12 +21,12 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ems-notes-app/app_ws
+        working-directory: app_ws
 
       - name: Run analyzer (lint)
         run: flutter analyze
-        working-directory: ems-notes-app/app_ws
+        working-directory: app_ws
 
       - name: Run tests
         run: flutter test
-        working-directory: ems-notes-app/app_ws
+        working-directory: app_ws

@@ -19,12 +19,19 @@ void main() {
     expect(find.text('0'), findsOneWidget);
     expect(find.text('1'), findsNothing);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Tap the '+1' button and trigger a frame.
+    await tester.tap(find.text('+1'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
+    // Verify that our counter has incremented by 1.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
+
+    // Tap the '+2' button and trigger a frame.
+    await tester.tap(find.text('+2'));
+    await tester.pump();
+
+    // Counter should now reflect the additional increment.
+    expect(find.text('3'), findsOneWidget);
   });
 }

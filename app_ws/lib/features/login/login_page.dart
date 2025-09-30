@@ -16,24 +16,31 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   String? _error;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-      // Simulated login delay
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() {
-          _isLoading = false;
-          if (_username == 'admin' && _password == 'password') {
-            // Navigate to home page on successful login
-            Navigator.of(context).pushReplacementNamed('/home');
-          } else {
-            _error = 'Invalid username or password';
-          }
-        });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    final isAuthenticated = await _controller.login(_username, _password);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (isAuthenticated) {
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else {
+      setState(() {
+        _isLoading = false;
+        _error = 'Invalid username or password';
       });
     }
   }

@@ -11,6 +11,33 @@ class PatientInfoPage extends StatefulWidget {
 class _PatientInfoPageState extends State<PatientInfoPage> {
   final _formKey = GlobalKey<FormState>();
   final _controller = PatientInfoController();
+  String _name = '';
+  String _age = '';
+  String _chiefComplaint = '';
+
+  void _savePatientInfo() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final parsedAge = int.tryParse(_age);
+    if (parsedAge == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid numeric age.')),
+      );
+      return;
+    }
+
+    _controller.savePatientInfo(
+      name: _name,
+      age: parsedAge,
+      chiefComplaint: _chiefComplaint,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Patient information saved.')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +56,7 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
                   labelText: 'Patient Name',
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (value) => _name = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter patient name';
@@ -43,9 +71,13 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+                onChanged: (value) => _age = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter age';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Age must be a valid number';
                   }
                   return null;
                 },
@@ -57,6 +89,7 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
+                onChanged: (value) => _chiefComplaint = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter chief complaint';
@@ -66,11 +99,7 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Save patient info
-                  }
-                },
+                onPressed: _savePatientInfo,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),

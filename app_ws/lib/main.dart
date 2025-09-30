@@ -56,14 +56,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
+  void _incrementCounterBy(int value) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      // Update the counter by the requested step so both buttons can reuse this
+      // method without duplicating state logic.
+      _counter += value;
     });
   }
 
@@ -112,10 +109,23 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: () => _incrementCounterBy(1),
+            tooltip: 'Increment by 1',
+            label: const Text('+1'),
+            icon: const Icon(Icons.filter_1),
+          ),
+          const SizedBox(width: 16),
+          FloatingActionButton.extended(
+            onPressed: () => _incrementCounterBy(2),
+            tooltip: 'Increment by 2',
+            label: const Text('+2'),
+            icon: const Icon(Icons.filter_2),
+          ),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

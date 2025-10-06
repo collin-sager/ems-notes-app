@@ -2,19 +2,27 @@ import 'package:flutter/material.dart';
 import 'login_controller.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-  
+  const LoginPage({super.key, this.controller});
+
+  final LoginController? controller;
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _controller = LoginController();
-  String _username = '';
+  late final LoginController _controller;
+  String _email = '';
   String _password = '';
   bool _isLoading = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? LoginController();
+  }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) {
@@ -26,13 +34,13 @@ class _LoginPageState extends State<LoginPage> {
       _error = null;
     });
 
-    final isAuthenticated = await _controller.login(_username, _password);
+    final errorMessage = await _controller.login(_email, _password);
 
     if (!mounted) {
       return;
     }
 
-    if (isAuthenticated) {
+    if (errorMessage == null) {
       setState(() {
         _isLoading = false;
       });
@@ -40,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       setState(() {
         _isLoading = false;
-        _error = 'Invalid username or password';
+        _error = errorMessage;
       });
     }
   }
@@ -48,9 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('EMS Notes Login'),
-      ),
+      appBar: AppBar(title: const Text('EMS Notes Login')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -60,13 +66,18 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Username',
+                  labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (value) => _username = value,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [AutofillHints.email],
+                onChanged: (value) => _email = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your username';
+                    return 'Please enter your email';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email address';
                   }
                   return null;
                 },

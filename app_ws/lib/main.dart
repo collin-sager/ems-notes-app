@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
-import 'features/login/index.dart';
-import 'features/home/index.dart';
-import 'features/patient_info/index.dart';
-import 'features/vitals/index.dart';
-import 'features/report/index.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
-  runApp(const EMSNotesApp());
+import 'config/supabase_env.dart';
+import 'features/home/index.dart';
+import 'features/login/index.dart';
+import 'features/patient_info/index.dart';
+import 'features/report/index.dart';
+import 'features/vitals/index.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: '.env');
+  } on FileNotFoundError {
+    // Ignore missing .env file when relying on dart-define values.
+  }
+  SupabaseEnv.ensureConfigured();
+  await Supabase.initialize(url: SupabaseEnv.url, anonKey: SupabaseEnv.anonKey);
+  final hasSession = Supabase.instance.client.auth.currentSession != null;
+  runApp(EMSNotesApp(initialRoute: hasSession ? '/home' : '/login'));
 }
 
 class EMSNotesApp extends StatelessWidget {
-  const EMSNotesApp({super.key});
+  const EMSNotesApp({super.key, required this.initialRoute});
+
+  final String initialRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -38,14 +53,15 @@ class EMSNotesApp extends StatelessWidget {
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           filled: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
-      initialRoute: '/login',
+      initialRoute: initialRoute,
       routes: {
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),

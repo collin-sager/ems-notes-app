@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../patient_info/patient_info_page.dart';
 import '../vitals/vitals_page.dart';
 import '../report/report_page.dart';
@@ -15,6 +17,7 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
+              Supabase.instance.client.auth.signOut();
               Navigator.of(context).pushReplacementNamed('/login');
             },
           ),
@@ -44,9 +47,7 @@ class HomePage extends StatelessWidget {
               Icons.favorite,
               () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const VitalsPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const VitalsPage()),
               ),
             ),
             _buildMenuCard(
@@ -55,9 +56,7 @@ class HomePage extends StatelessWidget {
               Icons.description,
               () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const ReportPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const ReportPage()),
               ),
             ),
           ],
@@ -79,11 +78,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 48.0,
-              color: Theme.of(context).primaryColor,
-            ),
+            Icon(icon, size: 48.0, color: Theme.of(context).primaryColor),
             const SizedBox(height: 16.0),
             Text(
               title,

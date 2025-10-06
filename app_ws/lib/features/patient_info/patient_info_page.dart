@@ -14,8 +14,9 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
   String _name = '';
   String _age = '';
   String _chiefComplaint = '';
+  bool _isSaving = false;
 
-  void _savePatientInfo() {
+  Future<void> _savePatientInfo() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -28,23 +29,45 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
       return;
     }
 
-    _controller.savePatientInfo(
-      name: _name,
-      age: parsedAge,
-      chiefComplaint: _chiefComplaint,
-    );
+    setState(() {
+      _isSaving = true;
+    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Patient information saved.')),
-    );
+    try {
+      await _controller.savePatientInfo(
+        name: _name,
+        age: parsedAge,
+        chiefComplaint: _chiefComplaint,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Patient information saved.')),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save patient info: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Patient Information'),
-      ),
+      appBar: AppBar(title: const Text('Patient Information')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -99,11 +122,17 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _savePatientInfo,
+                onPressed: _isSaving ? null : _savePatientInfo,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
-                child: const Text('Save Patient Information'),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Save Patient Information'),
               ),
             ],
           ),
